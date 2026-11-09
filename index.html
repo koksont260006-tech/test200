@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>영어 단어 퀴즈</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f6fb;--card:#fff;--ink:#1c2b4a;--sub:#5d6b86;--line:#d5deee;--brand:#2f5bd8;--brand-ink:#fff;--ok:#1f8a4c;--okbg:#e2f5ea;--no:#c63a3a;--nobg:#fbe6e6;--hl:#ffe36e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#12182b;--card:#1b2440;--ink:#eaf0ff;--sub:#9fb0d3;--line:#2e3a5f;--brand:#7da0ff;--brand-ink:#0f1730;--ok:#6fdc9b;--okbg:#17382a;--no:#ff8c8c;--nobg:#3d1f26;--hl:#6b5a14}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#12182b;--card:#1b2440;--ink:#eaf0ff;--sub:#9fb0d3;--line:#2e3a5f;--brand:#7da0ff;--brand-ink:#0f1730;--ok:#6fdc9b;--okbg:#17382a;--no:#ff8c8c;--nobg:#3d1f26;--hl:#6b5a14}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;line-height:1.6;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:24px 18px 40px}
+h1,h2{font-family:"Jua","Noto Sans KR",sans-serif;font-weight:400;margin:0}
+h1{font-size:2rem;line-height:1.2}
+h1 span{background:linear-gradient(transparent 55%,var(--hl) 55%)}
+.sub{color:var(--sub);margin:8px 0 24px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:22px}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:13px 18px;font-weight:700}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.primary{background:var(--brand);color:var(--brand-ink);width:100%}
+.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);width:100%;margin-top:10px}
+.lv{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1.5px solid var(--line);margin-bottom:12px;padding:16px}
+.lv:disabled{opacity:.5;cursor:not-allowed}
+.lv b{font-family:"Jua",sans-serif;font-weight:400;font-size:1.4rem;min-width:64px}
+.lv small{display:block;color:var(--sub);font-weight:400}
+.tag{margin-left:auto;font-size:.85rem;color:var(--sub);font-weight:500}
+.top{display:flex;justify-content:space-between;align-items:center;color:var(--sub);font-size:.95rem;margin-bottom:10px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .3s}
+.q{text-align:center;padding:26px 8px}
+.q small{color:var(--sub)}
+.q .ko{font-family:"Jua",sans-serif;font-size:2.4rem;line-height:1.3;margin-top:4px}
+input[type=text]{width:100%;font:inherit;font-size:1.3rem;text-align:center;padding:14px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);margin-bottom:12px}
+.fb{border-radius:12px;padding:12px 14px;margin-top:14px;font-weight:500}
+.fb.ok{background:var(--okbg);color:var(--ok)}
+.fb.no{background:var(--nobg);color:var(--no)}
+.fb b{font-size:1.15rem}
+.score{font-family:"Jua",sans-serif;font-size:3.4rem;text-align:center;line-height:1.1;margin:6px 0}
+.res{text-align:center}
+.wrong{margin:16px 0 0;padding:0;list-style:none;text-align:left}
+.wrong li{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}
+.wrong span{color:var(--no)}
+.row{display:flex;gap:10px}.row button{flex:1}.row .ghost{margin-top:0;width:auto;flex:0 0 auto}
+.hint{font-family:"Jua",sans-serif;font-size:1.6rem;letter-spacing:.2em;text-align:center;min-height:2.4rem;margin-bottom:6px;color:var(--brand)}
+.spk{margin-left:8px;padding:6px 10px;background:var(--card);color:var(--ink);border:1.5px solid var(--line);font-size:.9rem}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="home">
+  <h1>영어 단어 <span>퀴즈</span></h1>
+  <p class="sub">한국어 뜻을 보고 영어 단어를 입력하세요. 10문제 중 7개 이상 맞히면 다음 단계로 올라가요.</p>
+  <input type="text" id="pname" maxlength="20" autocomplete="off" placeholder="이름을 입력하세요" aria-label="이름" style="margin-bottom:6px">
+  <p id="nameMsg" style="color:var(--no);min-height:1.6em;margin:0 0 8px;font-weight:500" role="status"></p>
+  <div id="levels"></div>
+</section>
+
+<section id="quiz" class="hide">
+  <div class="top"><span id="lvName"></span><span id="count"></span></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="card">
+    <div class="q"><small>이 뜻의 영어 단어는?</small><div class="ko" id="ko"></div></div>
+    <input type="text" id="ans" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="영어 단어 입력" aria-label="영어 단어 입력">
+    <div class="hint" id="hint" aria-live="polite"></div>
+    <div class="row"><button class="ghost" id="hintBtn">힌트</button><button class="primary" id="btn">확인</button></div>
+    <div id="fb" class="fb hide" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="result" class="hide">
+  <div class="card res">
+    <h2 id="rTitle"></h2>
+    <div class="score" id="rScore"></div>
+    <p class="sub" id="rMsg" style="margin-bottom:0"></p>
+    <p class="sub" id="rSave" style="font-size:.9rem;margin:10px 0 0"></p>
+    <ul class="wrong" id="rWrong"></ul>
+    <div style="margin-top:20px">
+      <button class="primary hide" id="rNext">다음 단계로</button>
+      <button class="ghost" id="rRetry">이 단계 다시 풀기</button>
+      <button class="ghost" id="rHome">처음으로</button>
+    </div>
+  </div>
+</section>
+
+</div>
+<script>
+const WORDS={
+1:[["사과","apple"],["학교","school"],["친구","friend"],["가족","family"],["물","water"],["책","book"],["고양이","cat"],["음식","food"],["선생님","teacher"],["집","house"],["시간","time"],["색깔","color"],["음악","music"],["아침","morning"],["창문","window"],["의자","chair"],["나무","tree"],["강","river"],["꽃","flower"],["새","bird"],["비","rain"],["눈","snow"],["바다","sea"],["하늘","sky"],["가방","bag"],["연필","pencil"],["시장","market"],["점심","lunch"],["소년","boy"],["소녀","girl"]],
+2:[["도서관","library"],["환경","environment"],["질문","question"],["여행","travel"],["건강","health"],["날씨","weather"],["이웃","neighbor"],["생일","birthday"],["기억하다","remember"],["선택하다","choose"],["경험","experience"],["병원","hospital"],["박물관","museum"],["안전한","safe"],["대답","answer"],["운동","exercise"],["은행","bank"],["가격","price"],["거리","street"],["이유","reason"],["문제","problem"],["방문하다","visit"],["계획","plan"],["이야기","story"],["의사","doctor"],["도착하다","arrive"],["팔다","sell"],["빌리다","borrow"],["모으다","collect"],["걱정하다","worry"]],
+3:[["중요한","important"],["의견","opinion"],["문화","culture"],["발명하다","invent"],["설명하다","explain"],["결정하다","decide"],["준비하다","prepare"],["외국의","foreign"],["사회","society"],["비교하다","compare"],["용기","courage"],["경쟁","competition"],["습관","habit"],["전통","tradition"],["성공","success"],["이익","benefit"],["정부","government"],["지식","knowledge"],["역사","history"],["과학","science"],["교육","education"],["상상하다","imagine"],["노력","effort"],["위험","danger"],["다양한","various"],["가능한","possible"],["정보","information"],["묘사하다","describe"],["향상시키다","improve"],["참가하다","participate"]]
+};
+const NAMES={1:"1단계",2:"2단계",3:"3단계"};
+const DESC={1:"기초 단어",2:"생활 단어",3:"심화 단어"};
+const PASS=7,TOTAL=10;
+let unlocked=1,best={},level=1,qs=[],idx=0,score=0,wrongs=[],checked=false,hintN=0,pname="";
+const $=id=>document.getElementById(id);
+const show=id=>["home","quiz","result"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+
+function renderHome(){
+  $("levels").innerHTML="";
+  [1,2,3].forEach(n=>{
+    const b=document.createElement("button");
+    b.className="lv";b.disabled=n>unlocked;
+    b.innerHTML=`<b>${NAMES[n]}</b><span>${DESC[n]}<small>${n>unlocked?"이전 단계에서 7개 이상 맞히면 열려요":"10문제"}</small></span><span class="tag">${n>unlocked?"잠김":(best[n]!=null?"최고 "+best[n]+"/10":"")}</span>`;
+    b.onclick=()=>start(n);
+    $("levels").appendChild(b);
+  });
+  show("home");
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function start(n){
+  const nm=$("pname").value.trim();
+  if(!nm){show("home");$("nameMsg").textContent="먼저 이름을 입력해 주세요.";$("pname").focus();return}
+  $("nameMsg").textContent="";pname=nm;
+  level=n;qs=shuffle(WORDS[n]).slice(0,TOTAL);idx=0;score=0;wrongs=[];
+  $("lvName").textContent=NAMES[n];show("quiz");showQ();
+}
+function showQ(){
+  checked=false;
+  $("ko").textContent=qs[idx][0];
+  $("count").textContent=(idx+1)+" / "+TOTAL;
+  $("prog").style.width=(idx/TOTAL*100)+"%";
+  $("ans").value="";$("ans").disabled=false;$("ans").focus();
+  $("btn").textContent="확인";$("fb").className="fb hide";
+  hintN=0;$("hintBtn").disabled=false;$("hint").textContent=pat(qs[idx][1],0);
+}
+function check(){
+  const [ko,en]=qs[idx];
+  const v=$("ans").value.trim().toLowerCase();
+  if(!v)return;
+  const fb=$("fb");
+  if(v===en){score++;fb.className="fb ok";fb.innerHTML="정답이에요! <b>"+en+"</b>"}
+  else{wrongs.push([ko,en,v]);fb.className="fb no";fb.innerHTML="오답이에요. 정답은 <b>"+en+"</b>"}
+  fb.insertAdjacentHTML("beforeend",' <button class="spk" onclick="speak(\''+en+'\')">🔊 발음 듣기</button>');
+  checked=true;$("ans").disabled=true;$("hintBtn").disabled=true;$("hint").textContent=en.split("").join(" ");speak(en);
+  $("prog").style.width=((idx+1)/TOTAL*100)+"%";
+  $("btn").textContent=idx===TOTAL-1?"결과 보기":"다음 문제";
+  $("btn").focus();
+}
+function next(){
+  if(idx<TOTAL-1){idx++;showQ()}else finish();
+}
+const SHEET_URL="https://script.google.com/macros/s/AKfycbzQTewrSeabO9j-AjVeITerN-QAo_ZEYMGD9hEmw1GvzqK_qCovl9PBsj1iQOCVmL_Y/exec";
+function save(pass){
+  const el=$("rSave");el.textContent="기록 저장 중...";
+  fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({name:pname,level:level,score:score,passed:pass})})
+  .then(()=>{el.textContent="기록을 시트로 보냈어요."})
+  .catch(()=>{el.textContent="기록 저장에 실패했어요. 인터넷 연결을 확인해 주세요."});
+}
+function finish(){
+  const pass=score>=PASS;
+  save(pass);
+  best[level]=Math.max(best[level]||0,score);
+  if(pass&&level<3)unlocked=Math.max(unlocked,level+1);
+  $("rTitle").textContent=pass?(level===3?"모든 단계 완료!":"통과했어요!"):"아쉬워요";
+  $("rScore").textContent=score+" / "+TOTAL;
+  $("rMsg").textContent=pass?(level===3?"3단계까지 모두 통과했어요. 정말 잘했어요.":"7개 이상 맞혔어요. 다음 단계가 열렸어요."):"7개 이상 맞혀야 다음 단계로 올라가요. 다시 도전해 보세요.";
+  $("rWrong").innerHTML=wrongs.map(w=>`<li><span>${w[0]}</span><b>${w[1]} <button class="spk" onclick="speak('${w[1]}')" aria-label="발음 듣기">🔊</button></b></li>`).join("");
+  $("rNext").classList.toggle("hide",!(pass&&level<3));
+  show("result");
+}
+function pat(w,n){return w.split("").map((c,i)=>i<n?c:"_").join(" ")}
+function speak(w){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w);u.lang="en-US";u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+$("hintBtn").onclick=()=>{if(checked)return;const w=qs[idx][1];hintN=Math.min(hintN+1,w.length-1);$("hint").textContent=pat(w,hintN);if(hintN>=w.length-1)$("hintBtn").disabled=true;$("ans").focus()};
+$("btn").onclick=()=>checked?next():check();
+$("ans").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();checked?next():check()}});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&checked&&document.activeElement.tagName!=="BUTTON"&&!$("quiz").classList.contains("hide"))next()});
+$("rNext").onclick=()=>start(level+1);
+$("rRetry").onclick=()=>start(level);
+$("rHome").onclick=renderHome;
+renderHome();
+</script>
+</body>
+</html>
